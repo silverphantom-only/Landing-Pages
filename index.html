@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador Landing para Dentista</title>
+    <style>
+        body { font-family: Arial; max-width: 900px; margin: auto; padding: 20px; }
+        input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; }
+        button { padding: 14px; background: #2c4c9b; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; }
+        #resultado { white-space: pre-wrap; background: #eee; padding: 20px; margin-top: 20px; border-radius: 8px; }
+        .small { font-size: 14px; color: gray; }
+    </style>
+</head>
+<body>
+
+<h1>Generador de Landing Page para Dentista 🦷</h1>
+<p>Llena los datos y te entrego un HTML listo para publicar en GitHub Pages.</p>
+
+<label>Nombre de la Clínica</label>
+<input id="clinica" placeholder="Clínica Dental Sonrisas">
+
+<label>URL del Logo (subido en GitHub)</label>
+<input id="logo" placeholder="https://raw.githubusercontent.com/.../logo.png">
+
+<label>Dirección del Lugar</label>
+<input id="direccion" placeholder="Av. Siempre Viva #123, CDMX">
+
+<label>Número de teléfono para llamadas</label>
+<input id="tel" placeholder="521000000000">
+
+<label>Número de WhatsApp</label>
+<input id="wa" placeholder="521000000000">
+
+<label>Servicios y precios  
+<span class="small">(Formato: Servicio - Precio)</span></label>
+<textarea id="servicios" rows="6" placeholder="Limpieza Dental - $500
+Blanqueamiento - $1,200
+Resina Dental - $650"></textarea>
+
+<label>Fotos de Antes y Después  
+<span class="small">(una URL por línea, subidas a GitHub)</span></label>
+<textarea id="galeria" rows="4" placeholder="https://raw.githubusercontent.com/.../antes1.png
+https://raw.githubusercontent.com/.../despues1.png"></textarea>
+
+<label>Horarios</label>
+<textarea id="horarios" rows="4" placeholder="Lunes a Viernes: 9am – 7pm
+Sábado: 9am – 2pm
+Domingo: Cerrado"></textarea>
+
+<label>Link de Google Maps</label>
+<input id="maps" placeholder="https://maps.google.com/...">
+
+<label>Testimonios (uno por línea)</label>
+<textarea id="reviews" rows="4" placeholder="Excelente atención. – Ana M.
+Muy profesionales. – Carlos R."></textarea>
+
+<button onclick="generar()">Generar Landing</button>
+
+<h2>Resultado:</h2>
+<div id="resultado"></div>
+
+<script>
+function generar() {
+    const clinica = document.getElementById("clinica").value;
+    const logo = document.getElementById("logo").value;
+    const direccion = document.getElementById("direccion").value;
+    const tel = document.getElementById("tel").value;
+    const wa = document.getElementById("wa").value;
+    const servicios = document.getElementById("servicios").value.split("\n");
+    const horarios = document.getElementById("horarios").value.replace(/\n/g, "<br>");
+    const maps = document.getElementById("maps").value;
+    const reviews = document.getElementById("reviews").value.split("\n");
+    const galeria = document.getElementById("galeria").value.split("\n");
+
+    let serviciosHTML = "";
+    servicios.forEach(s => {
+        const [nombre, precio] = s.split("-");
+        if (nombre && precio) {
+            const mensaje = encodeURIComponent(`Hola, me interesa el servicio: ${nombre.trim()}`);
+            serviciosHTML += `
+            <div class="service-card">
+                <div class="service-info">
+                    <span>${nombre.trim()}</span>
+                    <strong>${precio.trim()}</strong>
+                </div>
+                <a class="mini-btn" href="https://wa.me/${wa}?text=${mensaje}" target="_blank">
+                    Consultar por WhatsApp
+                </a>
+            </div>`;
+        }
+    });
+
+    let reviewsHTML = "";
+    reviews.forEach(r => {
+        reviewsHTML += `<div class="services">${r}</div>`;
+    });
+
+    let galeriaHTML = "";
+    galeria.forEach(f => {
+        if (f.trim() !== "") {
+            galeriaHTML += `<img src="${f.trim()}" class="gallery-img">`;
+        }
+    });
+
+    const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${clinica}</title>
+<style>
+    body { font-family: Arial; margin: 0; background: #f7fafe; color: #333; }
+    header { background: white; padding: 20px; text-align: center; border-bottom: 2px solid #e3e9f5; }
+    header img { width: 120px; margin-bottom: 10px; }
+    h1 { margin: 0; font-size: 26px; color: #2c4c9b; }
+    section { padding: 20px; max-width: 800px; margin: auto; }
+    .btn { display: block; width: 100%; padding: 14px; margin: 10px 0; background: #2c4c9b; color: white; text-align: center; border-radius: 8px; text-decoration: none; }
+    .btn.whatsapp { background: #25d366; }
+    .service-card { background: white; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+    .service-info { display: flex; justify-content: space-between; font-size: 18px; }
+    .mini-btn { display: block; background: #25d366; padding: 10px; text-align: center; border-radius: 6px; color: white; margin-top: 8px; text-decoration: none; font-size: 14px; }
+    .gallery-img { width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ccc; }
+    .services { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd; }
+    .map-link { display: block; padding: 12px; background: #eee; border-radius: 8px; text-align: center; margin-top: 10px; text-decoration: none; color: #333; font-weight: bold; }
+    footer { text-align: center; padding: 20px; color: #777; }
+</style>
+</head>
+<body>
+
+<header>
+    <img src="${logo}" alt="Logo">
+    <h1>${clinica}</h1>
+    <p>${direccion}</p>
+</header>
+
+<section>
+
+<h2>Servicios Dentales</h2>
+${serviciosHTML}
+
+<a href="tel:+${tel}" class="btn">📞 Llamar a la Clínica</a>
+<a href="https://wa.me/${wa}?text=Hola%2C%20quiero%20agendar%20una%20cita" class="btn whatsapp">💬 Agendar por WhatsApp</a>
+
+<h2>Antes y Después</h2>
+${galeriaHTML}
+
+<h2>Cómo llegar</h2>
+<a href="${maps}" class="map-link" target="_blank">📍 Abrir en Google Maps</a>
+
+<h2>Horarios</h2>
+<div class="services">${horarios}</div>
+
+<h2>Testimonios</h2>
+${reviewsHTML}
+
+</section>
+
+<footer>
+    © 2025 ${clinica}. Todos los derechos reservados.
+</footer>
+
+</body>
+</html>`;
+
+    document.getElementById("resultado").textContent = html;
+}
+</script>
+
+</body>
+</html>
