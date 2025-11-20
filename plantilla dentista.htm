@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Generador PRO Landing para Dentista</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        background: #f2f5ff;
+        font-family: Arial;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+
+    h1, h2 {
+        color: #2c4c9b;
+        margin-bottom: 10px;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: auto;
+        padding: 30px;
+    }
+
+    .card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px #d0d8f7;
+        margin-bottom: 25px;
+    }
+
+    label {
+        font-weight: bold;
+        margin-top: 15px;
+        display: block;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #9993;
+        margin-top: 5px;
+        font-size: 15px;
+    }
+
+    button, .btn {
+        padding: 14px 20px;
+        background: #2c4c9b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-right: 10px;
+        font-size: 16px;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    button:hover, .btn:hover {
+        background: #1b3470;
+    }
+
+    #resultado {
+        background: #1e1e1e;
+        color: #dcdcdc;
+        padding: 15px;
+        white-space: pre-wrap;
+        border-radius: 10px;
+        max-height: 500px;
+        overflow-y: auto;
+        font-family: Consolas, monospace;
+        font-size: 14px;
+    }
+
+    iframe {
+        width: 100%;
+        height: 500px;
+        border-radius: 12px;
+        border: 2px solid #ccc;
+    }
+
+    .flex {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🦷 Generador PRO de Landing Page para Dentista</h1>
+<p>Completa los datos y genera un sitio web listo para publicar en GitHub Pages.</p>
+
+<div class="card">
+    <h2>Datos de la clínica</h2>
+
+    <label>Nombre de la Clínica</label>
+    <input id="clinica">
+
+    <label>URL del Logo</label>
+    <input id="logo">
+
+    <label>Dirección</label>
+    <input id="direccion">
+
+    <label>Teléfono</label>
+    <input id="tel">
+
+    <label>WhatsApp</label>
+    <input id="wa">
+
+    <label>Servicios (Servicio - Precio)</label>
+    <textarea id="servicios" rows="4"></textarea>
+
+    <label>Galería (URLs una por línea)</label>
+    <textarea id="galeria" rows="4"></textarea>
+
+    <label>Horarios</label>
+    <textarea id="horarios" rows="4"></textarea>
+
+    <label>Google Maps (Link)</label>
+    <input id="maps">
+
+    <label>Testimonios (uno por línea)</label>
+    <textarea id="reviews" rows="4"></textarea>
+
+    <br><br>
+
+    <button onclick="generarLanding()">Generar Landing</button>
+    <button onclick="copiarCodigo()">Copiar Código</button>
+    <button onclick="descargar()">Descargar HTML</button>
+</div>
+
+<div class="card">
+    <h2>Resultado (Código HTML generado)</h2>
+    <pre id="resultado"></pre>
+</div>
+
+<div class="card">
+    <h2>Vista previa en vivo</h2>
+    <iframe id="preview"></iframe>
+</div>
+
+</div>
+
+<script>
+// Escape básico para prevenir inyección
+function esc(s) {
+    return s.replace(/[&<>"]/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'
+    }[c]));
+}
+
+// Guardado automático
+document.querySelectorAll("input, textarea").forEach(el => {
+    el.addEventListener("input", () => {
+        localStorage.setItem("landingDentistaData", JSON.stringify(getFormData()));
+    });
+});
+
+// Cargar datos guardados
+window.onload = () => {
+    const saved = localStorage.getItem("landingDentistaData");
+    if (saved) {
+        const data = JSON.parse(saved);
+        Object.keys(data).forEach(id => {
+            if (document.getElementById(id)) {
+                document.getElementById(id).value = data[id];
+            }
+        });
+    }
+};
+
+function getFormData() {
+    return {
+        clinica: document.getElementById("clinica").value,
+        logo: document.getElementById("logo").value,
+        direccion: document.getElementById("direccion").value,
+        tel: document.getElementById("tel").value,
+        wa: document.getElementById("wa").value,
+        servicios: document.getElementById("servicios").value,
+        galeria: document.getElementById("galeria").value,
+        horarios: document.getElementById("horarios").value,
+        maps: document.getElementById("maps").value,
+        reviews: document.getElementById("reviews").value
+    };
+}
+
+function generarLanding() {
+    const data = getFormData();
+
+    let serviciosHTML = "";
+    data.servicios.split("\n").forEach(s => {
+        const [nombre, precio] = s.split(/\s*-\s*/);
+        if (nombre && precio) {
+            const mensaje = encodeURIComponent(`Hola, me interesa el servicio: ${nombre}`);
+            serviciosHTML += `
+            <div class="service-card">
+                <div class="service-info">
+                    <span>${esc(nombre)}</span>
+                    <strong>${esc(precio)}</strong>
+                </div>
+                <a class="mini-btn" href="https://wa.me/${data.wa}?text=${mensaje}" target="_blank">
+                    Consultar por WhatsApp
+                </a>
+            </div>`;
+        }
+    });
+
+    let reviewsHTML = "";
+    data.reviews.split("\n").forEach(r => {
+        if (r.trim()) reviewsHTML += `<div class="review-card">${esc(r)}</div>`;
+    });
+
+    let galeriaHTML = "";
+    data.galeria.split("\n").forEach(url => {
+        url = url.trim();
+        if (url.startsWith("http")) {
+            galeriaHTML += `<img src="${esc(url)}" class="gallery-img">`;
+        }
+    });
+
+    const horariosHTML = esc(data.horarios).replace(/\n/g, "<br>");
+
+    const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${esc(data.clinica)}</title>
+<style>
+    body { font-family: Arial; margin: 0; background: #f7fafe; color: #333; }
+    header { background: white; padding: 20px; text-align: center; border-bottom: 2px solid #e3e9f5; }
+    header img { width: 120px; margin-bottom: 10px; }
+    h1 { margin: 0; font-size: 26px; color: #2c4c9b; }
+    section { padding: 20px; max-width: 800px; margin: auto; }
+    .service-card { background: white; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+    .service-info { display: flex; justify-content: space-between; font-size: 18px; }
+    .mini-btn { display: block; background: #25d366; padding: 10px; text-align: center; border-radius: 6px; color: white; margin-top: 8px; text-decoration: none; font-size: 14px; }
+    .gallery-img { width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ccc; }
+    .review-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd; }
+    footer { text-align: center; padding: 20px; color: #777; }
+</style>
+</head>
+<body>
+
+<header>
+    <img src="${esc(data.logo)}" alt="Logo">
+    <h1>${esc(data.clinica)}</h1>
+    <p>${esc(data.direccion)}</p>
+</header>
+
+<section>
+
+<h2>Servicios Dentales</h2>
+${serviciosHTML}
+
+<a href="tel:+${esc(data.tel)}" class="btn">📞 Llamar a la Clínica</a>
+<a href="https://wa.me/${esc(data.wa)}?text=Hola%2C%20quiero%20agendar%20una%20cita" class="btn whatsapp">💬 Agendar por WhatsApp</a>
+
+<h2>Antes y Después</h2>
+${galeriaHTML}
+
+<h2>Cómo llegar</h2>
+<a href="${esc(data.maps)}" class="map-link" target="_blank">📍 Abrir en Google Maps</a>
+
+<h2>Horarios</h2>
+<div class="review-card">${horariosHTML}</div>
+
+<h2>Testimonios</h2>
+${reviewsHTML}
+
+</section>
+
+<footer>
+    © 2025 ${esc(data.clinica)}. Todos los derechos reservados.
+</footer>
+
+</body>
+</html>`;
+
+    document.getElementById("resultado").textContent = html;
+    document.getElementById("preview").srcdoc = html;
+}
+
+function copiarCodigo() {
+    const codigo = document.getElementById("resultado").textContent;
+    navigator.clipboard.writeText(codigo);
+    alert("Código copiado ✔️");
+}
+
+function descargar() {
+    const codigo = document.getElementById("resultado").textContent;
+    const blob = new Blob([codigo], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "landing-dentista.html";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
